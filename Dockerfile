@@ -15,8 +15,6 @@ WORKDIR /
 
 COPY --from=build-stage /stortr /stortr
 
-EXPOSE 50053
-
 USER nonroot:nonroot
 
 ENTRYPOINT ["/stortr"]
