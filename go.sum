@@ -77,8 +77,8 @@ github.com/googleapis/gax-go/v2 v2.15.0 h1:SyjDc1mGgZU5LncH8gimWo9lW1DtIfPibOG81
 github.com/googleapis/gax-go/v2 v2.15.0/go.mod h1:zVVkkxAQHa1RQpg9z2AUCMnKhi0Qld9rcmyfL1OZhoc=
 github.com/itsLeonB/ezutil/v2 v2.1.0 h1:kzsUtToV4j2OMN3jzkSsHkFZiJY8Pron8VJVnBQRJFk=
 github.com/itsLeonB/ezutil/v2 v2.1.0/go.mod h1:xEfkSPgylgeJV0jNGxDkQp7gtaHCH6ILTamWVCDY9Tw=
-github.com/itsLeonB/gerpc v0.2.0 h1:U2B+jVHw/9LQKb1ZiMUbr4Igh0zDFcYof0dzzsOxQyM=
-github.com/itsLeonB/gerpc v0.2.0/go.mod h1:gFDio3sQkLm6lGxCKhw+5oAXa2PzW8Wt6GpZvyaz/js=
+github.com/itsLeonB/gerpc v0.3.0-alpha h1:ehh8Od/f53uiNd8cSnbm5IiQw34/sHNnpEmnF+iZMR4=
+github.com/itsLeonB/gerpc v0.3.0-alpha/go.mod h1:gFDio3sQkLm6lGxCKhw+5oAXa2PzW8Wt6GpZvyaz/js=
 github.com/itsLeonB/stortr-protos v0.1.0 h1:n7qRwXVEpBFUnO82/8bUcPl2kP2rTpLIcgmQCOv0v4g=
 github.com/itsLeonB/stortr-protos v0.1.0/go.mod h1:51xZMlWWnWiShiZiEhtDoTUgx0Pgt78cYZtBit+zLlY=
 github.com/itsLeonB/ungerr v0.1.0 h1:t2Ezk7xYQ859U2Tx/u+5+k/Rt7D3XXqXor6w11FeO5Y=

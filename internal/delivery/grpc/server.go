@@ -18,6 +18,10 @@ func Setup(configs config.Config) *gerpc.GrpcServer {
 			gerpc.NewLoggingInterceptor(providers.Logger),
 			gerpc.NewErrorInterceptor(providers.Logger),
 		),
+		grpc.ChainStreamInterceptor(
+			gerpc.NewLoggingStreamInterceptor(providers.Logger),
+			gerpc.NewErrorStreamInterceptor(providers.Logger),
+		),
 	}
 
 	return gerpc.NewGrpcServer().

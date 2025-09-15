@@ -89,5 +89,5 @@ func (ebs *expenseBillServiceImpl) validateUploadRequest(req *dto.UploadBillRequ
 func (ebs *expenseBillServiceImpl) generateObjectKey(filename string) string {
 	ext := filepath.Ext(filename)
 	timestamp := time.Now().Format("2006/01/02")
-	return fmt.Sprintf("bills/%s/%s%s", timestamp, uuid.New(), ext)
+	return fmt.Sprintf("bills/%s/%s%s", timestamp, uuid.NewString(), ext)
 }

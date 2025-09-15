@@ -2,9 +2,12 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/itsLeonB/stortr/internal/appconstant"
@@ -22,21 +25,43 @@ func NewLocalStorageRepository(basePath string) *localStorageRepository {
 
 func (r *localStorageRepository) Upload(ctx context.Context, req *entity.StorageUploadRequest) error {
 	bucketPath := filepath.Join(r.basePath, req.BucketName)
-	if err := os.MkdirAll(bucketPath, 0755); err != nil {
+	if err := os.MkdirAll(bucketPath, 0750); err != nil {
 		return eris.Wrap(err, appconstant.ErrProcessFile)
 	}
-	objectPath := filepath.Join(bucketPath, req.ObjectKey)
-	if err := os.WriteFile(objectPath, req.Data, 0644); err != nil {
+
+	// sanitize and ensure object stays under bucketPath
+	cleanKey := filepath.Clean(req.ObjectKey)
+	objectPath := filepath.Join(bucketPath, cleanKey)
+	if !strings.HasPrefix(objectPath, bucketPath+string(os.PathSeparator)) {
+		return eris.Wrap(eris.New("invalid object key"), appconstant.ErrProcessFile)
+	}
+
+	if err := os.MkdirAll(filepath.Dir(objectPath), 0750); err != nil {
 		return eris.Wrap(err, appconstant.ErrProcessFile)
 	}
+
+	if err := os.WriteFile(objectPath, req.Data, 0600); err != nil {
+		return eris.Wrap(err, appconstant.ErrProcessFile)
+	}
+
 	return nil
 }
 
 func (r *localStorageRepository) Delete(ctx context.Context, bucketName, objectKey string) error {
-	objectPath := filepath.Join(r.basePath, bucketName, objectKey)
+	bucketPath := filepath.Join(r.basePath, bucketName)
+	cleanKey := filepath.Clean(objectKey)
+	objectPath := filepath.Join(bucketPath, cleanKey)
+	if !strings.HasPrefix(objectPath, bucketPath+string(os.PathSeparator)) {
+		return eris.Wrap(eris.New("invalid object key"), appconstant.ErrProcessFile)
+	}
+
 	if err := os.Remove(objectPath); err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return nil
+		}
 		return eris.Wrap(err, appconstant.ErrProcessFile)
 	}
+
 	return nil
 }
 

@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/itsLeonB/stortr-protos/gen/go/expensebill/v1"
+	"github.com/itsLeonB/stortr/internal/appconstant"
 	"github.com/itsLeonB/stortr/internal/dto"
 	"github.com/itsLeonB/stortr/internal/service"
 	"github.com/itsLeonB/ungerr"
@@ -100,6 +101,14 @@ func receiveStreamData(stream expensebill.ExpenseBillService_UploadStreamServer)
 				return nil, nil, ungerr.BadRequestError("metadata already received")
 			}
 			metadata = data.BillMetadata
+			fileSize := metadata.GetFileSize()
+			if fileSize <= 0 {
+				return nil, nil, ungerr.BadRequestError("file size must be greater than zero")
+			}
+			if fileSize > appconstant.MaxFileSize {
+				return nil, nil, ungerr.UnprocessableEntityError("file too large")
+			}
+			imageData = make([]byte, 0, fileSize)
 
 		case *expensebill.UploadStreamRequest_Chunk:
 			if metadata == nil {
