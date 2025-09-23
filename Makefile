@@ -1,6 +1,30 @@
 TEST_DIR := ./internal/test
 
-.PHONY: grpc grpc-hot lint test test-verbose test-coverage test-coverage-html test-clean
+.PHONY:
+	help
+	grpc
+	grpc-hot
+	lint
+	test
+	test-verbose
+	test-coverage
+	test-coverage-html
+	test-clean
+	install-pre-push-hook
+	uninstall-pre-push-hook
+
+help:
+	@echo "Makefile commands:"
+	@echo "  make grpc                    - Start the gRPC server"
+	@echo "  make grpc-hot                - Start the gRPC server with hot reload (requires air)"
+	@echo "  make lint                    - Run golangci-lint on the codebase"
+	@echo "  make test                    - Run all tests"
+	@echo "  make test-verbose            - Run all tests with verbose output"
+	@echo "  make test-coverage           - Run all tests with coverage report"
+	@echo "  make test-coverage-html      - Run all tests and generate HTML coverage report"
+	@echo "  make test-clean              - Clean test cache and run tests"
+	@echo "  make install-pre-push-hook   - Install the pre-push git hook"
+	@echo "  make uninstall-pre-push-hook - Uninstall the pre-push git hook"
 
 grpc:
 	go run cmd/grpc/main.go
@@ -53,3 +77,15 @@ test-clean:
 	else \
 		echo "No tests found in $(TEST_DIR), skipping."; \
 	fi
+
+install-pre-push-hook:
+	@echo "Installing pre-push git hook..."
+	@mkdir -p .git/hooks
+	@cp scripts/git-pre-push.sh .git/hooks/pre-push
+	@chmod +x .git/hooks/pre-push
+	@echo "Pre-push hook installed successfully!"
+
+uninstall-pre-push-hook:
+	@echo "Uninstalling pre-push git hook..."
+	@rm -f .git/hooks/pre-push
+	@echo "Pre-push hook uninstalled successfully!"

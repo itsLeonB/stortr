@@ -29,3 +29,7 @@ LICENSE
 # Docker-related
 Dockerfile
 docker-compose*.yml
+
+# Scripts
+scripts
+*.sh
