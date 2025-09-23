@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -83,13 +84,13 @@ func (r *gcsStorageRepository) Delete(ctx context.Context, bucketName, objectKey
 }
 
 func (r *gcsStorageRepository) GetSignedURL(ctx context.Context, bucketName, objectKey string, expiration time.Duration) (string, error) {
-	opts := &storage.SignedURLOptions{
-		Scheme:  storage.SigningSchemeV4,
-		Method:  "GET",
-		Expires: time.Now().Add(expiration),
-	}
+	bucket := r.client.Bucket(bucketName)
 
-	url, err := storage.SignedURL(bucketName, objectKey, opts)
+	url, err := bucket.SignedURL(objectKey, &storage.SignedURLOptions{
+		Scheme:  storage.SigningSchemeV4,
+		Method:  http.MethodGet,
+		Expires: time.Now().Add(expiration),
+	})
 	if err != nil {
 		return "", eris.Wrap(err, "failed to generate signed URL")
 	}
