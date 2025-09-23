@@ -7,13 +7,13 @@ import (
 )
 
 type Services struct {
-	ExpenseBill service.ExpenseBillService
+	UploadBill service.UploadBillService
 }
 
 func ProvideServices(configs config.Google, repos *Repositories) *Services {
 	validate := validator.New()
 
 	return &Services{
-		ExpenseBill: service.NewExpenseBillService(validate, repos.Storage, configs.BillBucketName),
+		UploadBill: service.NewUploadBillService(validate, repos.Storage, configs.BillBucketName),
 	}
 }

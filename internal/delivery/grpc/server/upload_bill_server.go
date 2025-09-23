@@ -4,7 +4,7 @@ import (
 	"context"
 	"io"
 
-	"github.com/itsLeonB/stortr-protos/gen/go/expensebill/v1"
+	"github.com/itsLeonB/stortr-protos/gen/go/uploadbill/v1"
 	"github.com/itsLeonB/stortr/internal/appconstant"
 	"github.com/itsLeonB/stortr/internal/dto"
 	"github.com/itsLeonB/stortr/internal/service"
@@ -13,18 +13,18 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type ExpenseBillServer struct {
-	expensebill.UnimplementedExpenseBillServiceServer
-	expenseBillSvc service.ExpenseBillService
+type uploadBillServer struct {
+	uploadbill.UnimplementedUploadBillServiceServer
+	uploadbillSvc service.UploadBillService
 }
 
-func newExpenseBillServer(expenseBillSvc service.ExpenseBillService) expensebill.ExpenseBillServiceServer {
-	return &ExpenseBillServer{
-		expenseBillSvc: expenseBillSvc,
+func newUploadBillServer(uploadbillSvc service.UploadBillService) uploadbill.UploadBillServiceServer {
+	return &uploadBillServer{
+		uploadbillSvc: uploadbillSvc,
 	}
 }
 
-func (ebs *ExpenseBillServer) UploadStream(stream expensebill.ExpenseBillService_UploadStreamServer) error {
+func (ebs *uploadBillServer) UploadStream(stream uploadbill.UploadBillService_UploadStreamServer) error {
 	metadata, imageData, err := receiveStreamData(stream)
 	if err != nil {
 		return err
@@ -39,15 +39,15 @@ func (ebs *ExpenseBillServer) UploadStream(stream expensebill.ExpenseBillService
 	}
 
 	// Call service layer
-	objectKey, err := ebs.expenseBillSvc.Upload(stream.Context(), request)
+	objectKey, err := ebs.uploadbillSvc.Upload(stream.Context(), request)
 	if err != nil {
 		return err
 	}
 
-	return stream.SendAndClose(&expensebill.UploadStreamResponse{ObjectKey: objectKey})
+	return stream.SendAndClose(&uploadbill.UploadStreamResponse{ObjectKey: objectKey})
 }
 
-func (ebs *ExpenseBillServer) GetUrl(ctx context.Context, req *expensebill.GetUrlRequest) (*expensebill.GetUrlResponse, error) {
+func (ebs *uploadBillServer) GetUrl(ctx context.Context, req *uploadbill.GetUrlRequest) (*uploadbill.GetUrlResponse, error) {
 	if req == nil {
 		return nil, ungerr.BadRequestError("request is nil")
 	}
@@ -56,17 +56,17 @@ func (ebs *ExpenseBillServer) GetUrl(ctx context.Context, req *expensebill.GetUr
 		return nil, ungerr.BadRequestError("object key is empty")
 	}
 
-	url, err := ebs.expenseBillSvc.GetURL(ctx, req.GetObjectKey())
+	url, err := ebs.uploadbillSvc.GetURL(ctx, req.GetObjectKey())
 	if err != nil {
 		return nil, err
 	}
 
-	return &expensebill.GetUrlResponse{
+	return &uploadbill.GetUrlResponse{
 		Url: url,
 	}, nil
 }
 
-func (ebs *ExpenseBillServer) Delete(ctx context.Context, req *expensebill.DeleteRequest) (*emptypb.Empty, error) {
+func (ebs *uploadBillServer) Delete(ctx context.Context, req *uploadbill.DeleteRequest) (*emptypb.Empty, error) {
 	if req == nil {
 		return nil, ungerr.BadRequestError("request is nil")
 	}
@@ -75,15 +75,15 @@ func (ebs *ExpenseBillServer) Delete(ctx context.Context, req *expensebill.Delet
 		return nil, ungerr.BadRequestError("object key is empty")
 	}
 
-	if err := ebs.expenseBillSvc.Delete(ctx, req.GetObjectKey()); err != nil {
+	if err := ebs.uploadbillSvc.Delete(ctx, req.GetObjectKey()); err != nil {
 		return nil, err
 	}
 
 	return nil, nil
 }
 
-func receiveStreamData(stream expensebill.ExpenseBillService_UploadStreamServer) (*expensebill.BillMetadata, []byte, error) {
-	var metadata *expensebill.BillMetadata
+func receiveStreamData(stream uploadbill.UploadBillService_UploadStreamServer) (*uploadbill.BillMetadata, []byte, error) {
+	var metadata *uploadbill.BillMetadata
 	var imageData []byte
 
 	for {
@@ -96,7 +96,7 @@ func receiveStreamData(stream expensebill.ExpenseBillService_UploadStreamServer)
 		}
 
 		switch data := req.Data.(type) {
-		case *expensebill.UploadStreamRequest_BillMetadata:
+		case *uploadbill.UploadStreamRequest_BillMetadata:
 			if metadata != nil {
 				return nil, nil, ungerr.BadRequestError("metadata already received")
 			}
@@ -110,7 +110,7 @@ func receiveStreamData(stream expensebill.ExpenseBillService_UploadStreamServer)
 			}
 			imageData = make([]byte, 0, fileSize)
 
-		case *expensebill.UploadStreamRequest_Chunk:
+		case *uploadbill.UploadStreamRequest_Chunk:
 			if metadata == nil {
 				return nil, nil, ungerr.BadRequestError("metadata must be sent first")
 			}

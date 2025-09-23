@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/itsLeonB/ezutil/v2 v2.1.0
 	github.com/itsLeonB/gerpc v0.3.0-alpha
-	github.com/itsLeonB/stortr-protos v0.1.0
+	github.com/itsLeonB/stortr-protos v0.1.1-alpha
 	github.com/itsLeonB/ungerr v0.1.0
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
