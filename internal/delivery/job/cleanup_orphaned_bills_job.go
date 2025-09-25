@@ -10,13 +10,13 @@ import (
 )
 
 type cleanupOrphanedBillsJob struct {
-	uploadBillSvc service.UploadBillService
+	expenseBillSvc service.ExpenseBillService
 }
 
 func CleanupOrphanedBillsJob(configs config.Config) *ezutil.Job {
 	logger := provider.ProvideLogger("Cleanup Orphaned Bills", configs.Env)
 	providers := provider.All(configs, logger)
-	jobImpl := cleanupOrphanedBillsJob{providers.UploadBill}
+	jobImpl := cleanupOrphanedBillsJob{providers.ExpenseBill}
 
 	return ezutil.NewJob(logger, jobImpl.Run).
 		WithSetupFunc(providers.Ping).
@@ -24,5 +24,5 @@ func CleanupOrphanedBillsJob(configs config.Config) *ezutil.Job {
 }
 
 func (j *cleanupOrphanedBillsJob) Run() error {
-	return j.uploadBillSvc.CleanupOrphaned(context.Background())
+	return j.expenseBillSvc.CleanupOrphaned(context.Background())
 }

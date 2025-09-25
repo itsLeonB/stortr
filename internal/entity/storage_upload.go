@@ -3,7 +3,10 @@ package entity
 type StorageUploadRequest struct {
 	Data        []byte
 	ContentType string
-	Filename    string
-	BucketName  string
-	ObjectKey   string
+	FileIdentifier
+}
+
+type FileIdentifier struct {
+	BucketName string
+	ObjectKey  string
 }

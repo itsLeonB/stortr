@@ -4,23 +4,24 @@ import (
 	"errors"
 
 	"github.com/itsLeonB/ezutil/v2"
+	"github.com/itsLeonB/meq"
 	"github.com/itsLeonB/stortr/internal/config"
 )
 
 type Provider struct {
 	Logger ezutil.Logger
-	*DBs
+	meq.DB
 	*Repositories
 	*Services
 }
 
 func All(configs config.Config, logger ezutil.Logger) *Provider {
-	dbs := ProvideDBs(logger, configs.Valkey)
-	repos := ProvideRepositories(configs, dbs, logger)
+	db := meq.NewAsynqDB(logger, configs.ToRedisOpts())
+	repos := ProvideRepositories(configs, db, logger)
 
 	return &Provider{
 		Logger:       logger,
-		DBs:          dbs,
+		DB:           db,
 		Repositories: repos,
 		Services:     ProvideServices(configs.Google, repos, logger),
 	}
@@ -29,12 +30,11 @@ func All(configs config.Config, logger ezutil.Logger) *Provider {
 func (p *Provider) Shutdown() error {
 	var errs error
 
-	if p.DBs != nil {
-		if e := p.DBs.Shutdown(); e != nil {
+	if p.DB != nil {
+		if e := p.DB.Shutdown(); e != nil {
 			errs = errors.Join(errs, e)
 		}
 	}
-
 	if p.Repositories != nil {
 		if e := p.Repositories.Shutdown(); e != nil {
 			errs = errors.Join(errs, e)
