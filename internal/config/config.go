@@ -6,13 +6,15 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
+const AppName = "Stortr"
+
 type Config struct {
 	App
 	Google
+	Valkey
 }
 
 type App struct {
-	Name    string        `default:"Stortr"`
 	Env     string        `default:"dev"`
 	Port    string        `default:"50051"`
 	Timeout time.Duration `default:"10s"`
@@ -30,8 +32,12 @@ func Load() Config {
 	var google Google
 	envconfig.MustProcess("GOOGLE", &google)
 
+	var valkey Valkey
+	envconfig.MustProcess("VALKEY", &valkey)
+
 	return Config{
 		App:    app,
 		Google: google,
+		Valkey: valkey,
 	}
 }

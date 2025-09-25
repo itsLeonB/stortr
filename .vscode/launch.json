@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "gRPC",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "envFile": "${workspaceFolder}/.env",
+            "program": "${workspaceFolder}/cmd/grpc/main.go",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "job",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "envFile": "${workspaceFolder}/.env",
+            "program": "${workspaceFolder}/cmd/job/main.go",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

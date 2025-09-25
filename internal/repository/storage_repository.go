@@ -14,6 +14,7 @@ type StorageRepository interface {
 	Delete(ctx context.Context, bucketName, objectKey string) error
 	GetSignedURL(ctx context.Context, bucketName, objectKey string, expiration time.Duration) (string, error)
 	Close() error
+	GetAllObjectKeys(ctx context.Context, bucketName string) ([]string, error)
 }
 
 func NewStorageRepository(configs config.Config) StorageRepository {
