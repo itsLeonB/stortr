@@ -2,14 +2,13 @@ package provider
 
 import (
 	"github.com/itsLeonB/ezutil/v2"
-	"github.com/itsLeonB/stortr/internal/config"
 )
 
-func ProvideLogger(configs config.App) ezutil.Logger {
+func ProvideLogger(appName string, env string) ezutil.Logger {
 	minLevel := 0
-	if configs.Env == "prod" {
+	if env == "prod" {
 		minLevel = 1
 	}
 
-	return ezutil.NewSimpleLogger(configs.Name, true, minLevel)
+	return ezutil.NewSimpleLogger(appName, true, minLevel)
 }

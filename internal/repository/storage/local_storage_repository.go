@@ -74,6 +74,10 @@ func (r *localStorageRepository) GetSignedURL(ctx context.Context, bucketName, o
 	return fmt.Sprintf("file://%s", objectPath), nil
 }
 
+func (r *localStorageRepository) GetAllObjectKeys(ctx context.Context, bucketName string) ([]string, error) {
+	return nil, nil
+}
+
 func (r *localStorageRepository) Close() error {
 	// No resources to close for local storage
 	return nil

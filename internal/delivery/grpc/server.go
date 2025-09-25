@@ -9,7 +9,8 @@ import (
 )
 
 func Setup(configs config.Config) *gerpc.GrpcServer {
-	providers := provider.All(configs)
+	logger := provider.ProvideLogger(config.AppName, configs.Env)
+	providers := provider.All(configs, logger)
 	servers := server.ProvideServers(providers.Services)
 
 	// Middlewares/Interceptors

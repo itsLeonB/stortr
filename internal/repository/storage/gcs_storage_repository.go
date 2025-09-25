@@ -11,6 +11,7 @@ import (
 	"cloud.google.com/go/storage"
 	"github.com/itsLeonB/stortr/internal/entity"
 	"github.com/rotisserie/eris"
+	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 )
 
@@ -96,6 +97,25 @@ func (r *gcsStorageRepository) GetSignedURL(ctx context.Context, bucketName, obj
 	}
 
 	return url, nil
+}
+
+func (r *gcsStorageRepository) GetAllObjectKeys(ctx context.Context, bucketName string) ([]string, error) {
+	bucket := r.client.Bucket(bucketName)
+	it := bucket.Objects(ctx, nil)
+	objectKeys := make([]string, 0)
+
+	for {
+		attr, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return nil, eris.Wrap(err, "error listing objects in bucket")
+		}
+		objectKeys = append(objectKeys, attr.Name)
+	}
+
+	return objectKeys, nil
 }
 
 func (r *gcsStorageRepository) Close() error {
