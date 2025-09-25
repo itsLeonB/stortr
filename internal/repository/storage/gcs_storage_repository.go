@@ -70,6 +70,10 @@ func (r *gcsStorageRepository) Upload(ctx context.Context, req *entity.StorageUp
 }
 
 func (r *gcsStorageRepository) Delete(ctx context.Context, bucketName, objectKey string) error {
+	if bucketName == "" {
+		return eris.New("missing bucket name")
+	}
+
 	bucket := r.client.Bucket(bucketName)
 	obj := bucket.Object(objectKey)
 
@@ -85,6 +89,10 @@ func (r *gcsStorageRepository) Delete(ctx context.Context, bucketName, objectKey
 }
 
 func (r *gcsStorageRepository) GetSignedURL(ctx context.Context, bucketName, objectKey string, expiration time.Duration) (string, error) {
+	if bucketName == "" {
+		return "", eris.New("missing bucket name")
+	}
+
 	bucket := r.client.Bucket(bucketName)
 
 	url, err := bucket.SignedURL(objectKey, &storage.SignedURLOptions{
@@ -100,6 +108,10 @@ func (r *gcsStorageRepository) GetSignedURL(ctx context.Context, bucketName, obj
 }
 
 func (r *gcsStorageRepository) GetAllObjectKeys(ctx context.Context, bucketName string) ([]string, error) {
+	if bucketName == "" {
+		return nil, eris.New("missing bucket name")
+	}
+
 	bucket := r.client.Bucket(bucketName)
 	it := bucket.Objects(ctx, nil)
 	objectKeys := make([]string, 0)

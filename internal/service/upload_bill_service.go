@@ -88,6 +88,10 @@ func (ubs *uploadBillServiceImpl) CleanupOrphaned(ctx context.Context) error {
 		return err
 	}
 
+	if len(tasks) < 1 {
+		return eris.New("empty task queue")
+	}
+
 	sort.Slice(tasks, func(i, j int) bool {
 		return tasks[i].Timestamp.After(tasks[j].Timestamp)
 	})

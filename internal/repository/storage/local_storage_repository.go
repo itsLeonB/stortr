@@ -75,7 +75,39 @@ func (r *localStorageRepository) GetSignedURL(ctx context.Context, bucketName, o
 }
 
 func (r *localStorageRepository) GetAllObjectKeys(ctx context.Context, bucketName string) ([]string, error) {
-	return nil, nil
+	if bucketName == "" {
+		return nil, eris.New("missing bucket name")
+	}
+	bucketPath := filepath.Join(r.basePath, bucketName)
+	cleanBucketPath := filepath.Clean(bucketPath)
+	// ensure bucketPath stays under basePath
+	if !strings.HasPrefix(cleanBucketPath, r.basePath+string(os.PathSeparator)) {
+		return nil, eris.New("invalid bucket name")
+	}
+	var keys []string
+	err := filepath.WalkDir(bucketPath, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			if errors.Is(err, fs.ErrNotExist) {
+				// bucket may not exist yet; treat as empty
+				return nil
+			}
+			return eris.Wrap(err, appconstant.ErrProcessFile)
+		}
+		if d.IsDir() {
+			return nil
+		}
+		rel, err := filepath.Rel(bucketPath, path)
+		if err != nil {
+			return eris.Wrap(err, appconstant.ErrProcessFile)
+		}
+		// Normalize to forward slashes to match cloud backends.
+		keys = append(keys, filepath.ToSlash(rel))
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return keys, nil
 }
 
 func (r *localStorageRepository) Close() error {
