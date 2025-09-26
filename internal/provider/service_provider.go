@@ -8,7 +8,8 @@ import (
 )
 
 type Services struct {
-	UploadBill service.UploadBillService
+	Image       service.ImageService
+	ExpenseBill service.ExpenseBillService
 }
 
 func ProvideServices(configs config.Google, repos *Repositories, logger ezutil.Logger) *Services {
@@ -19,11 +20,13 @@ func ProvideServices(configs config.Google, repos *Repositories, logger ezutil.L
 	validate := validator.New()
 
 	return &Services{
-		UploadBill: service.NewUploadBillService(
+		Image: service.NewImageService(
 			validate,
 			repos.Storage,
-			configs.BillBucketName,
-			repos.TaskQueue,
+		),
+		ExpenseBill: service.NewExpenseBillService(
+			repos.Storage,
+			repos.OrphanedBillCleanupTaskQueue,
 			logger,
 		),
 	}

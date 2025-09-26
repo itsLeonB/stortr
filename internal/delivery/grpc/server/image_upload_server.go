@@ -4,8 +4,10 @@ import (
 	"context"
 	"io"
 
-	"github.com/itsLeonB/stortr-protos/gen/go/uploadbill/v1"
+	"github.com/itsLeonB/stortr-protos/gen/go/genericupload/v1"
+	"github.com/itsLeonB/stortr-protos/gen/go/imageupload/v1"
 	"github.com/itsLeonB/stortr/internal/appconstant"
+	"github.com/itsLeonB/stortr/internal/delivery/grpc/mapper"
 	"github.com/itsLeonB/stortr/internal/dto"
 	"github.com/itsLeonB/stortr/internal/service"
 	"github.com/itsLeonB/ungerr"
@@ -13,77 +15,84 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type uploadBillServer struct {
-	uploadbill.UnimplementedUploadBillServiceServer
-	uploadbillSvc service.UploadBillService
+type imageUploadServer struct {
+	imageupload.UnimplementedImageUploadServiceServer
+	imageSvc service.ImageService
 }
 
-func newUploadBillServer(uploadbillSvc service.UploadBillService) uploadbill.UploadBillServiceServer {
-	return &uploadBillServer{
-		uploadbillSvc: uploadbillSvc,
+func newImageUploadServer(imageSvc service.ImageService) imageupload.ImageUploadServiceServer {
+	return &imageUploadServer{
+		imageSvc: imageSvc,
 	}
 }
 
-func (ebs *uploadBillServer) UploadStream(stream uploadbill.UploadBillService_UploadStreamServer) error {
+func (ebs *imageUploadServer) UploadStream(stream imageupload.ImageUploadService_UploadStreamServer) error {
 	metadata, imageData, err := receiveStreamData(stream)
 	if err != nil {
 		return err
 	}
 
-	// Create domain request
-	request := &dto.UploadBillRequest{
-		ImageData:   imageData,
-		ContentType: metadata.ContentType,
-		Filename:    metadata.Filename,
-		FileSize:    metadata.FileSize,
-	}
-
-	// Call service layer
-	objectKey, err := ebs.uploadbillSvc.Upload(stream.Context(), request)
+	fileID, err := mapper.FromFileIdentifierProto(metadata.GetFileIdentifier())
 	if err != nil {
 		return err
 	}
 
-	return stream.SendAndClose(&uploadbill.UploadStreamResponse{ObjectKey: objectKey})
+	// Create domain request
+	request := &dto.ImageUploadRequest{
+		ImageData:         imageData,
+		ContentType:       metadata.ContentType,
+		FileSize:          metadata.FileSize,
+		FileIdentifierDTO: fileID,
+	}
+
+	// Call service layer
+	uri, err := ebs.imageSvc.Upload(stream.Context(), request)
+	if err != nil {
+		return err
+	}
+
+	return stream.SendAndClose(&genericupload.UploadStreamResponse{Uri: uri})
 }
 
-func (ebs *uploadBillServer) GetUrl(ctx context.Context, req *uploadbill.GetUrlRequest) (*uploadbill.GetUrlResponse, error) {
+func (ebs *imageUploadServer) GetUrl(ctx context.Context, req *genericupload.GetUrlRequest) (*genericupload.GetUrlResponse, error) {
 	if req == nil {
 		return nil, ungerr.BadRequestError("request is nil")
 	}
 
-	if req.GetObjectKey() == "" {
-		return nil, ungerr.BadRequestError("object key is empty")
-	}
-
-	url, err := ebs.uploadbillSvc.GetURL(ctx, req.GetObjectKey())
+	fileID, err := mapper.FromFileIdentifierProto(req.GetFileIdentifier())
 	if err != nil {
 		return nil, err
 	}
 
-	return &uploadbill.GetUrlResponse{
+	url, err := ebs.imageSvc.GetURL(ctx, fileID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &genericupload.GetUrlResponse{
 		Url: url,
 	}, nil
 }
 
-func (ebs *uploadBillServer) Delete(ctx context.Context, req *uploadbill.DeleteRequest) (*emptypb.Empty, error) {
+func (ebs *imageUploadServer) Delete(ctx context.Context, req *genericupload.DeleteRequest) (*emptypb.Empty, error) {
 	if req == nil {
 		return nil, ungerr.BadRequestError("request is nil")
 	}
 
-	if req.GetObjectKey() == "" {
-		return nil, ungerr.BadRequestError("object key is empty")
+	fileID, err := mapper.FromFileIdentifierProto(req.GetFileIdentifier())
+	if err != nil {
+		return nil, err
 	}
 
-	if err := ebs.uploadbillSvc.Delete(ctx, req.GetObjectKey()); err != nil {
+	if err := ebs.imageSvc.Delete(ctx, fileID); err != nil {
 		return nil, err
 	}
 
 	return nil, nil
 }
 
-func receiveStreamData(stream uploadbill.UploadBillService_UploadStreamServer) (*uploadbill.BillMetadata, []byte, error) {
-	var metadata *uploadbill.BillMetadata
+func receiveStreamData(stream imageupload.ImageUploadService_UploadStreamServer) (*genericupload.Metadata, []byte, error) {
+	var metadata *genericupload.Metadata
 	var imageData []byte
 
 	for {
@@ -96,11 +105,11 @@ func receiveStreamData(stream uploadbill.UploadBillService_UploadStreamServer) (
 		}
 
 		switch data := req.Data.(type) {
-		case *uploadbill.UploadStreamRequest_BillMetadata:
+		case *genericupload.UploadStreamRequest_Metadata:
 			if metadata != nil {
 				return nil, nil, ungerr.BadRequestError("metadata already received")
 			}
-			metadata = data.BillMetadata
+			metadata = data.Metadata
 			fileSize := metadata.GetFileSize()
 			if fileSize <= 0 {
 				return nil, nil, ungerr.BadRequestError("file size must be greater than zero")
@@ -110,7 +119,7 @@ func receiveStreamData(stream uploadbill.UploadBillService_UploadStreamServer) (
 			}
 			imageData = make([]byte, 0, fileSize)
 
-		case *uploadbill.UploadStreamRequest_Chunk:
+		case *genericupload.UploadStreamRequest_Chunk:
 			if metadata == nil {
 				return nil, nil, ungerr.BadRequestError("metadata must be sent first")
 			}
