@@ -22,7 +22,6 @@ type App struct {
 
 type Google struct {
 	ServiceAccount string `split_words:"true" required:"true"`
-	BillBucketName string `split_words:"true" required:"true"`
 }
 
 func Load() Config {
