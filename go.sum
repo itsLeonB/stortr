@@ -89,10 +89,10 @@ github.com/itsLeonB/ezutil/v2 v2.2.0 h1:bV8KqXvWM2WmMuHhScJifxRdzS3+ZQ3XcIksQ2YY
 github.com/itsLeonB/ezutil/v2 v2.2.0/go.mod h1:xEfkSPgylgeJV0jNGxDkQp7gtaHCH6ILTamWVCDY9Tw=
 github.com/itsLeonB/gerpc v0.3.0 h1:2tpoJJaikMpsmJ507zzvhEN0A7PAm6aqI1z18EKL45c=
 github.com/itsLeonB/gerpc v0.3.0/go.mod h1:gFDio3sQkLm6lGxCKhw+5oAXa2PzW8Wt6GpZvyaz/js=
-github.com/itsLeonB/meq v0.0.0-beta h1:k3FpFX71SKzNKIoa5pqvPdpBbXfTT7BhXz1PcCVh10s=
-github.com/itsLeonB/meq v0.0.0-beta/go.mod h1:/Vlk9uvptUo5wBAEnBB6kSyGXaJLxANRd+1npmx4Psg=
-github.com/itsLeonB/stortr-protos v0.1.2-eta h1:TIzjKmtTSti20UURdMRvEDjN8DqB3HmMNlPkTF857RM=
-github.com/itsLeonB/stortr-protos v0.1.2-eta/go.mod h1:HcIJPgUgXbLFjMBvZCdY+gWnvCrzAtV5x7dyc8IfLb4=
+github.com/itsLeonB/meq v0.0.0 h1:sIBSHAjTarw6gAHwN217Qewb9yotOxnPkKSAEH7Pmo8=
+github.com/itsLeonB/meq v0.0.0/go.mod h1:6SGoFUDv46o5uJfHkBydXjPJyJl0P9jYLh/vZIFrQpY=
+github.com/itsLeonB/stortr-protos v0.1.2 h1:5ktzs30Cqjf/eYauR1Z+9k5656/Qtp8inshsgKUyg7Y=
+github.com/itsLeonB/stortr-protos v0.1.2/go.mod h1:HcIJPgUgXbLFjMBvZCdY+gWnvCrzAtV5x7dyc8IfLb4=
 github.com/itsLeonB/ungerr v0.1.0 h1:t2Ezk7xYQ859U2Tx/u+5+k/Rt7D3XXqXor6w11FeO5Y=
 github.com/itsLeonB/ungerr v0.1.0/go.mod h1:d1ZnTmRnnkccpRlhUMQGN8+PuMk82NqiRhcDOQ5PirY=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
